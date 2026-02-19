@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora FIRE · finanzers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,700;1,900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #000000;
+      --black2:  #0d0d0d;
+      --black3:  #111111;
+      --black4:  #1a1a1a;
+      --black5:  #222222;
+      --orange:  #FF6B00;
+      --orange2: #FF8C00;
+      --orange3: #FF5500;
+      --text:    #FFFFFF;
+      --muted:   #888888;
+      --faint:   #444444;
+      --stroke:  #2a2a2a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      min-height: 100vh;
+      background: var(--black);
+      font-family: 'Barlow', sans-serif;
+      color: var(--text);
+      padding: 0 0 80px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Hero banner ── */
+    .hero {
+      position: relative;
+      background: var(--black);
+      padding: 48px 24px 56px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 120%, rgba(255,107,0,.22) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--orange), transparent);
+    }
+
+    /* ── Logo ── */
+    .logo {
+      display: inline-block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-style: italic;
+      font-weight: 900;
+      font-size: 52px;
+      color: var(--orange);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 32px;
+      text-shadow: 0 0 40px rgba(255,107,0,.4);
+    }
+
+    h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(40px, 7vw, 72px);
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    h1 span {
+      color: var(--orange);
+      font-style: italic;
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 440px;
+      margin: 0 auto;
+      font-weight: 400;
+    }
+
+    /* ── Wrap ── */
+    .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--black3);
+      border: 1px solid var(--stroke);
+      border-radius: 4px;
+      padding: 32px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--orange), var(--orange2), transparent);
+      border-radius: 4px 4px 0 0;
+    }
+
+    .section-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--orange);
+      margin-bottom: 28px;
+    }
+
+    /* ── Slider field ── */
+    .field { margin-bottom: 28px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .field-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .field-hint {
+      font-size: 11px;
+      color: var(--faint);
+      margin-left: 6px;
+    }
+    .field-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--orange);
+      letter-spacing: -0.01em;
+    }
+
+    .slider-track {
+      position: relative;
+      height: 4px;
+      cursor: pointer;
+    }
+    .slider-bg {
+      position: absolute;
+      inset: 0;
+      border-radius: 2px;
+      background: var(--black5);
+    }
+    .slider-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--orange3), var(--orange2));
+      transition: width .08s;
+    }
+    .slider-thumb {
+      position: absolute;
+      top: 50%;
+      width: 16px; height: 16px;
+      border-radius: 2px;
+      background: var(--orange);
+      box-shadow: 0 0 12px rgba(255,107,0,.5);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: left .08s;
+    }
+    input[type=range] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      opacity: 0;
+      cursor: pointer;
+      height: 100%;
+      margin: 0;
+      -webkit-appearance: none;
+    }
+
+    /* ── Stats grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--black3);
+      border: 1px solid var(--stroke);
+      border-radius: 4px;
+      padding: 20px;
+      position: relative;
+    }
+    .stat-card.accent {
+      background: var(--orange);
+      border-color: var(--orange);
+    }
+    .stat-card.full { grid-column: 1 / -1; }
+
+    .stat-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 8px;
+    }
+    .stat-card.accent .stat-label { color: rgba(0,0,0,.55); }
+
+    .stat-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      color: var(--orange);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+    .stat-card.accent .stat-value { color: var(--black); font-size: 38px; }
+    .stat-card:not(.accent) .stat-value { color: var(--text); }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .stat-card.accent .stat-sub { color: rgba(0,0,0,.5); }
+
+    /* ── Milestone ── */
+    #milestone {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      background: var(--black3);
+      border: 1px solid var(--stroke);
+      border-radius: 4px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    #milestone::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      border-radius: 4px 4px 0 0;
+    }
+    #milestone-icon { font-size: 32px; flex-shrink: 0; }
+    #milestone-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 5px;
+      letter-spacing: 0.02em;
+    }
+    #milestone-msg {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    /* ── Chart ── */
+    #chart-wrap {
+      background: var(--black3);
+      border: 1px solid var(--stroke);
+      border-radius: 4px;
+      padding: 24px 26px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    #chart-wrap::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--orange), transparent);
+      border-radius: 4px 4px 0 0;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .chart-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .chart-legend {
+      display: flex;
+      gap: 14px;
+      font-size: 11px;
+      color: var(--faint);
+      align-items: center;
+    }
+    .leg { display: flex; align-items: center; gap: 5px; }
+    .leg-line {
+      width: 20px; height: 2px;
+      background: var(--orange);
+      border-radius: 1px;
+    }
+    .leg-dash {
+      width: 16px; height: 2px;
+      background: #22c55e;
+      opacity: .7;
+      border-radius: 1px;
+    }
+    #chart-svg { width: 100%; height: auto; display: block; }
+
+    /* ── Levers ── */
+    .levers-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+    .lever {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: var(--black4);
+      border: 1px solid var(--stroke);
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .lever:last-child { margin-bottom: 0; }
+    .lever-label { font-size: 14px; color: var(--muted); }
+    .lever-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      color: #22c55e;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Preview ── */
+    #preview {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255,107,0,.08);
+      border: 1px solid rgba(255,107,0,.25);
+      border-radius: 4px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+    #preview-icon { font-size: 28px; }
+    #preview-sub {
+      font-size: 11px;
+      color: var(--faint);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    #preview-val {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--orange);
+      letter-spacing: -0.01em;
+    }
+    #preview-age {
+      font-family: 'Barlow', sans-serif;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 8px;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      width: 100%;
+      padding: 18px;
+      background: var(--orange);
+      color: var(--black);
+      border: none;
+      border-radius: 4px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .15s, transform .15s;
+      box-shadow: 0 4px 24px rgba(255,107,0,.3);
+    }
+    .btn-primary:hover {
+      background: var(--orange2);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(255,107,0,.4);
+    }
+
+    .btn-row { display: flex; gap: 10px; }
+    .btn-back {
+      flex: 1;
+      padding: 16px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--stroke);
+      border-radius: 4px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-back:hover { border-color: var(--orange); color: var(--orange); }
+
+    .btn-share {
+      flex: 2;
+      padding: 16px;
+      background: var(--orange);
+      color: var(--black);
+      border: none;
+      border-radius: 4px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 16px;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .15s, transform .15s;
+      box-shadow: 0 4px 20px rgba(255,107,0,.28);
+    }
+    .btn-share:hover { background: var(--orange2); transform: translateY(-1px); }
+
+    .disclaimer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--faint);
+      margin-top: 20px;
+      line-height: 1.7;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--stroke), transparent);
+      margin: 4px 0 16px;
+    }
+
+    /* ── Animations ── */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    .anim { animation: slideUp .45s cubic-bezier(.22,.68,0,1.1) both; }
+    .fade { animation: fadeIn .3s ease both; }
+
+    /* ── Screens ── */
+    #screen-form    { display: block; }
+    #screen-results { display: none; }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      .card { padding: 22px 18px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .stat-card.full { grid-column: unset; }
+      h1 { font-size: 36px; }
+      .logo { font-size: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="logo">finanzers</div>
+    <h1>¿Cuándo puedes<br><span>dejar de trabajar?</span></h1>
+    <p class="subtitle">
+      Calcula tu número FIRE y descubre exactamente cuántos años te separan
+      de la libertad financiera total.
+    </p>
+  </div>
+
+  <div class="wrap" style="margin-top: 32px;">
+
+  <!-- ═══════════════════ FORM ═══════════════════ -->
+  <div id="screen-form" class="fade">
+
+    <div class="card">
+      <div class="section-label">01 — Tu situación actual</div>
+
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label">Edad actual</label>
+          <span class="field-value" id="val-edad">30 años</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-bg"></div>
+          <div class="slider-fill" id="fill-edad"></div>
+          <div class="slider-thumb" id="thumb-edad"></div>
+          <input type="range" id="sl-edad" min="18" max="65" step="1" value="30" oninput="onSlider(this)" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label">Ingresos netos mensuales</label>
+          <span class="field-value" id="val-ingresos">2.500 €</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-bg"></div>
+          <div class="slider-fill" id="fill-ingresos"></div>
+          <div class="slider-thumb" id="thumb-ingresos"></div>
+          <input type="range" id="sl-ingresos" min="500" max="15000" step="100" value="2500" oninput="onSlider(this)" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label">Gastos mensuales <span class="field-hint" id="hint-gastos"></span></label>
+          <span class="field-value" id="val-gastos">1.600 €</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-bg"></div>
+          <div class="slider-fill" id="fill-gastos"></div>
+          <div class="slider-thumb" id="thumb-gastos"></div>
+          <input type="range" id="sl-gastos" min="300" max="12000" step="100" value="1600" oninput="onSlider(this)" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label">Ahorro / inversión acumulada</label>
+          <span class="field-value" id="val-ahorro">15.000 €</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-bg"></div>
+          <div class="slider-fill" id="fill-ahorro"></div>
+          <div class="slider-thumb" id="thumb-ahorro"></div>
+          <input type="range" id="sl-ahorro" min="0" max="500000" step="1000" value="15000" oninput="onSlider(this)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">02 — Parámetros de inversión</div>
+
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label">Rentabilidad anual esperada <span class="field-hint">(S&P500 histórico ≈ 10%)</span></label>
+          <span class="field-value" id="val-rent">7%</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-bg"></div>
+          <div class="slider-fill" id="fill-rent"></div>
+          <div class="slider-thumb" id="thumb-rent"></div>
+          <input type="range" id="sl-rent" min="1" max="15" step="0.5" value="7" oninput="onSlider(this)" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label">Inflación anual estimada</label>
+          <span class="field-value" id="val-inf">2,5%</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-bg"></div>
+          <div class="slider-fill" id="fill-inf"></div>
+          <div class="slider-thumb" id="thumb-inf"></div>
+          <input type="range" id="sl-inf" min="0" max="8" step="0.25" value="2.5" oninput="onSlider(this)" />
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-header">
+          <label class="field-label">Tasa de retiro anual <span class="field-hint">(regla del 4% = estándar)</span></label>
+          <span class="field-value" id="val-retiro">4%</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-bg"></div>
+          <div class="slider-fill" id="fill-retiro"></div>
+          <div class="slider-thumb" id="thumb-retiro"></div>
+          <input type="range" id="sl-retiro" min="2" max="6" step="0.25" value="4" oninput="onSlider(this)" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Live preview -->
+    <div id="preview">
+      <div id="preview-icon">⚡</div>
+      <div>
+        <div id="preview-sub">Estimación rápida</div>
+        <div id="preview-val">Calculando...<span id="preview-age"></span></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="showResults()">
+      VER MI PLAN DE LIBERTAD →
+    </button>
+  </div>
+
+  <!-- ═══════════════════ RESULTS ═══════════════════ -->
+  <div id="screen-results">
+
+    <div id="milestone" class="anim" style="animation-delay:.0s">
+      <div id="milestone-icon">🔥</div>
+      <div>
+        <div id="milestone-title">Tu diagnóstico</div>
+        <div id="milestone-msg"></div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card accent full anim" style="animation-delay:.08s">
+        <div class="stat-label">Tu número FIRE</div>
+        <div class="stat-value" id="r-objetivo"></div>
+        <div class="stat-sub" id="r-objetivo-sub"></div>
+      </div>
+
+      <div class="stat-card anim" style="animation-delay:.13s">
+        <div class="stat-label">Años hasta FIRE</div>
+        <div class="stat-value" id="r-anios"></div>
+        <div class="stat-sub" id="r-anios-sub"></div>
+      </div>
+
+      <div class="stat-card anim" style="animation-delay:.17s">
+        <div class="stat-label">Renta pasiva / mes</div>
+        <div class="stat-value" id="r-renta"></div>
+        <div class="stat-sub">Sin trabajar, al alcanzar FIRE</div>
+      </div>
+
+      <div class="stat-card anim" style="animation-delay:.21s">
+        <div class="stat-label">Tasa de ahorro</div>
+        <div class="stat-value" id="r-tasa"></div>
+        <div class="stat-sub" id="r-tasa-sub"></div>
+      </div>
+
+      <div class="stat-card anim" style="animation-delay:.25s">
+        <div class="stat-label">Rentabilidad real</div>
+        <div class="stat-value" id="r-real"></div>
+        <div class="stat-sub" id="r-real-sub"></div>
+      </div>
+    </div>
+
+    <div id="chart-wrap" class="anim" style="animation-delay:.29s">
+      <div class="chart-header">
+        <div class="chart-title">Proyección de cartera</div>
+        <div class="chart-legend">
+          <div class="leg"><div class="leg-line"></div> Tu cartera</div>
+          <div class="leg"><div class="leg-dash"></div> Meta FIRE</div>
+        </div>
+      </div>
+      <svg id="chart-svg" viewBox="0 0 640 190"></svg>
+    </div>
+
+    <div class="card anim" style="animation-delay:.33s">
+      <div class="levers-title">¿Qué aceleraría tu libertad?</div>
+      <div class="lever">
+        <span class="lever-label">💰 Ahorrar 100€ más al mes</span>
+        <span class="lever-value" id="lev-100"></span>
+      </div>
+      <div class="lever">
+        <span class="lever-label">📈 +1% de rentabilidad anual</span>
+        <span class="lever-value" id="lev-rent"></span>
+      </div>
+      <div class="lever">
+        <span class="lever-label">🏦 Empezar con 10.000€ más</span>
+        <span class="lever-value" id="lev-cap"></span>
+      </div>
+    </div>
+
+    <div class="btn-row anim" style="animation-delay:.38s">
+      <button class="btn-back" onclick="showForm()">← AJUSTAR</button>
+      <button class="btn-share" onclick="shareResults()">COMPARTIR MIS RESULTADOS →</button>
+    </div>
+
+    <p class="disclaimer">
+      Calculadora orientativa. No constituye asesoramiento financiero.<br>
+      La rentabilidad pasada no garantiza resultados futuros. <strong style="color:#555">finanzers</strong>
+    </p>
+  </div>
+
+  </div><!-- /wrap -->
+
+<script>
+// ─────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt = (n,d=0) => new Intl.NumberFormat('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d}).format(n);
+
+function fmtEur(n) {
+  if (n>=1e6) return fmt(n/1e6,2)+' M€';
+  if (n>=1e3) return fmt(n/1e3,1)+' k€';
+  return fmt(n)+' €';
+}
+
+function pct(val,min,max){ return Math.max(0,Math.min(100,((val-min)/(max-min))*100)); }
+
+// ─────────────────────────────────────────
+//  SLIDERS
+// ─────────────────────────────────────────
+const SLIDERS = {
+  'edad':    { min:18,   max:65,     fmt: v=>`${v} años` },
+  'ingresos':{ min:500,  max:15000,  fmt: v=>`${fmt(v)} €` },
+  'gastos':  { min:300,  max:12000,  fmt: v=>`${fmt(v)} €` },
+  'ahorro':  { min:0,    max:500000, fmt: v=>fmtEur(v) },
+  'rent':    { min:1,    max:15,     fmt: v=>`${v}%` },
+  'inf':     { min:0,    max:8,      fmt: v=>`${String(v).replace('.',',')}%` },
+  'retiro':  { min:2,    max:6,      fmt: v=>`${v}%` },
+};
+
+function updateSlider(key){
+  const sl=$(`sl-${key}`), cfg=SLIDERS[key];
+  const p = pct(sl.value, cfg.min, cfg.max);
+  $(`fill-${key}`).style.width  = p+'%';
+  $(`thumb-${key}`).style.left  = p+'%';
+  $(`val-${key}`).textContent   = cfg.fmt(parseFloat(sl.value));
+}
+
+function onSlider(input){
+  updateSlider(input.id.replace('sl-',''));
+  updatePreview();
+}
+
+function initSliders(){ Object.keys(SLIDERS).forEach(updateSlider); }
+
+// ─────────────────────────────────────────
+//  FIRE CALC
+// ─────────────────────────────────────────
+function getInputs(){
+  return {
+    edad:      +$('sl-edad').value,
+    ingresos:  +$('sl-ingresos').value,
+    gastos:    +$('sl-gastos').value,
+    ahorro:    +$('sl-ahorro').value,
+    rentab:    +$('sl-rent').value,
+    inflacion: +$('sl-inf').value,
+    tasaRetiro:+$('sl-retiro').value,
+  };
+}
+
+function calcFIRE(inp){
+  const { edad,ingresos,gastos,ahorro,rentab,inflacion,tasaRetiro } = inp;
+  const ahorroMes  = ingresos - gastos;
+  const tasaAhorro = ingresos>0 ? (ahorroMes/ingresos)*100 : 0;
+  const objetivo   = (gastos*12) / (tasaRetiro/100);
+  const r          = rentab/100/12;
+
+  let meses=0, cartera=ahorro;
+  if(ahorroMes<=0){
+    meses=Infinity;
+  } else {
+    while(cartera<objetivo && meses<720){
+      cartera = cartera*(1+r)+ahorroMes;
+      meses++;
+    }
+    if(meses>=720) meses=Infinity;
+  }
+
+  const anios      = meses===Infinity ? Infinity : meses/12;
+  const edadFIRE   = meses===Infinity ? null : Math.round(edad+anios);
+  const rentaPasiva= meses===Infinity ? 0 : (objetivo*(tasaRetiro/100))/12;
+
+  const maxY = Math.min(Math.ceil(anios===Infinity ? 45 : anios)+6, 50);
+  const serie=[];
+  let c=ahorro;
+  for(let y=0;y<=maxY;y++){
+    serie.push({y, cartera:Math.round(c), obj:Math.round(objetivo)});
+    for(let m=0;m<12;m++) c=c*(1+r)+ahorroMes;
+  }
+
+  return { objetivo,anios,edadFIRE,tasaAhorro,ahorroMes,rentaPasiva,meses,serie };
+}
+
+// ─────────────────────────────────────────
+//  MILESTONE
+// ─────────────────────────────────────────
+function getMilestone(tasaAhorro, anios){
+  if(anios===Infinity) return {
+    icon:'⚠️', color:'#FF6B00',
+    title:'NECESITAS AJUSTAR EL PLAN',
+    msg:'Con tu tasa de ahorro actual no alcanzarás la libertad financiera. Sube ingresos o reduce gastos.'
+  };
+  if(anios<=5) return {
+    icon:'🔥', color:'#22c55e',
+    title:'MODO FIRE EXTREMO',
+    msg:`Tasa de ahorro del ${fmt(tasaAhorro,0)}%. La libertad financiera es inminente. Eres una máquina.`
+  };
+  if(anios<=10) return {
+    icon:'🚀', color:'#22c55e',
+    title:'CAMINO ÉPICO',
+    msg:'En menos de una década podrías vivir sin depender de un salario. Tu futuro yo te lo agradecerá.'
+  };
+  if(anios<=20) return {
+    icon:'📈', color:'#FF8C00',
+    title:'PLAN SÓLIDO Y REALISTA',
+    msg:`${fmt(anios,1)} años es manejable. Optimizar rentabilidad o reducir gastos puede acelerarlo bastante.`
+  };
+  return {
+    icon:'💡', color:'#FF8C00',
+    title:'HAY MARGEN DE MEJORA',
+    msg:'El camino es largo, pero todo empieza con el primer paso. Pequeños ajustes generan grandes cambios.'
+  };
+}
+
+// ─────────────────────────────────────────
+//  PREVIEW
+// ─────────────────────────────────────────
+function updatePreview(){
+  const inp=getInputs();
+  const ahorroMes=inp.ingresos-inp.gastos;
+
+  $('hint-gastos').textContent = ahorroMes>0
+    ? `(ahorras ${fmt((ahorroMes/inp.ingresos)*100,0)}%)`
+    : '(¡gastas más de lo que ingresas!)';
+
+  const res=calcFIRE(inp);
+  const ms=getMilestone(res.tasaAhorro,res.anios);
+  $('preview-icon').textContent=ms.icon;
+
+  if(res.anios===Infinity){
+    $('preview-val').innerHTML='No alcanzable con estos datos';
+    $('preview-age').textContent='';
+  } else {
+    const lbl = res.anios<1 ? `${Math.round(res.meses)} meses` : `~${fmt(res.anios,1)} años`;
+    $('preview-val').innerHTML=`Libertad en ${lbl}`;
+    $('preview-age').textContent = res.edadFIRE ? `(a los ${res.edadFIRE} años)` : '';
+  }
+}
+
+// ─────────────────────────────────────────
+//  CHART
+// ─────────────────────────────────────────
+function drawChart(serie, objetivo){
+  const W=640,H=190;
+  const pad={t:14,r:18,b:30,l:66};
+  const iw=W-pad.l-pad.r, ih=H-pad.t-pad.b;
+  const maxV=Math.max(...serie.map(d=>d.cartera),objetivo)*1.08;
+  const xc=i=>pad.l+(i/(serie.length-1))*iw;
+  const yc=v=>pad.t+(1-v/maxV)*ih;
+
+  const path=serie.map((d,i)=>`${i===0?'M':'L'}${xc(i).toFixed(1)},${yc(d.cartera).toFixed(1)}`).join(' ');
+  const area=`${path} L${xc(serie.length-1).toFixed(1)},${(H-pad.b).toFixed(1)} L${pad.l},${(H-pad.b).toFixed(1)} Z`;
+  const fireY=yc(objetivo);
+  const crossIdx=serie.findIndex(d=>d.cartera>=objetivo);
+
+  let yTicks='';
+  [0,.25,.5,.75,1].forEach(p=>{
+    const v=maxV*p, yp=yc(v);
+    yTicks+=`<line x1="${pad.l-4}" y1="${yp.toFixed(1)}" x2="${W-pad.r}" y2="${yp.toFixed(1)}" stroke="#1f1f1f" stroke-width="1"/>`;
+    yTicks+=`<text x="${pad.l-8}" y="${(yp+4).toFixed(1)}" text-anchor="end" font-size="9" fill="#555" font-family="Barlow Condensed,sans-serif">${fmtEur(v)}</text>`;
+  });
+
+  let xTicks='';
+  const step=Math.max(1,Math.floor(serie.length/6));
+  serie.forEach((d,i)=>{
+    if(i%step===0)
+      xTicks+=`<text x="${xc(i).toFixed(1)}" y="${H-5}" text-anchor="middle" font-size="9" fill="#555" font-family="Barlow Condensed,sans-serif">Año ${d.y}</text>`;
+  });
+
+  let fireLine='';
+  if(fireY>pad.t && fireY<H-pad.b){
+    fireLine=`<line x1="${pad.l}" y1="${fireY.toFixed(1)}" x2="${W-pad.r}" y2="${fireY.toFixed(1)}"
+      stroke="#22c55e" stroke-width="1.5" stroke-dasharray="6 4" opacity=".7"/>
+      <text x="${W-pad.r-4}" y="${(fireY-7).toFixed(1)}" text-anchor="end" font-size="9" fill="#22c55e" opacity=".85" font-family="Barlow Condensed,sans-serif">META FIRE</text>`;
+  }
+
+  let crossMark='';
+  if(crossIdx>0&&crossIdx<serie.length){
+    const cx=xc(crossIdx),cy=yc(objetivo);
+    crossMark=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="6" fill="#22c55e" opacity=".95"/>
+               <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="11" fill="none" stroke="#22c55e" stroke-width="1.5" opacity=".3"/>`;
+  }
+
+  $('chart-svg').innerHTML=`
+    <defs>
+      <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FF6B00" stop-opacity=".25"/>
+        <stop offset="100%" stop-color="#FF6B00" stop-opacity=".02"/>
+      </linearGradient>
+    </defs>
+    ${yTicks}
+    ${fireLine}
+    <path d="${area}" fill="url(#ag)"/>
+    <path d="${path}" fill="none" stroke="#FF6B00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    ${crossMark}
+    ${xTicks}
+  `;
+}
+
+// ─────────────────────────────────────────
+//  LEVERS
+// ─────────────────────────────────────────
+function leverDiff(base, override){
+  const r2=calcFIRE({...base,...override});
+  if(base.anios===Infinity||r2.anios===Infinity) return 'Sin cambio';
+  const d=base.anios-r2.anios;
+  return d>0.08 ? `-${fmt(d,1)} años` : 'Mínimo';
+}
+
+// ─────────────────────────────────────────
+//  SCREENS
+// ─────────────────────────────────────────
+function showResults(){
+  const inp=getInputs();
+  const res=calcFIRE(inp);
+  const ms=getMilestone(res.tasaAhorro,res.anios);
+
+  // milestone
+  $('milestone-icon').textContent=ms.icon;
+  $('milestone-title').textContent=ms.title;
+  $('milestone-msg').textContent=ms.msg;
+  $('milestone').style.borderColor=ms.color+'44';
+  $('milestone').querySelector('::before');
+  const mBefore=$('milestone');
+  mBefore.style.setProperty('--mc', ms.color);
+
+  // override ::before color via inline style trick
+  const styleEl=document.getElementById('ms-style')||document.createElement('style');
+  styleEl.id='ms-style';
+  styleEl.textContent=`#milestone::before{background:linear-gradient(90deg,${ms.color},transparent)!important}`;
+  document.head.appendChild(styleEl);
+
+  // stats
+  $('r-objetivo').textContent=fmtEur(res.objetivo);
+  $('r-objetivo-sub').textContent=`Con la regla del ${inp.tasaRetiro}% — la cartera que debes acumular`;
+
+  const aniosLabel=res.anios===Infinity?'∞':res.anios<1?`${Math.round(res.meses)} meses`:`${fmt(res.anios,1)} años`;
+  $('r-anios').textContent=aniosLabel;
+  $('r-anios-sub').textContent=res.edadFIRE?`Lo alcanzarías con ${res.edadFIRE} años`:'Ajusta tus datos';
+
+  $('r-renta').textContent=`${fmt(res.rentaPasiva)} €`;
+  $('r-tasa').textContent=`${fmt(res.tasaAhorro,1)}%`;
+  $('r-tasa-sub').textContent=`Ahorras ${fmt(res.ahorroMes)} € al mes`;
+  $('r-real').textContent=`${fmt(inp.rentab-inp.inflacion,1)}%`;
+  $('r-real-sub').textContent=`Después de inflación del ${String(inp.inflacion).replace('.',',')}%`;
+
+  drawChart(res.serie, res.objetivo);
+
+  $('lev-100').textContent=leverDiff({...inp,anios:res.anios},{gastos:inp.gastos-100});
+  $('lev-rent').textContent=leverDiff({...inp,anios:res.anios},{rentab:inp.rentab+1});
+  $('lev-cap').textContent=leverDiff({...inp,anios:res.anios},{ahorro:inp.ahorro+10000});
+
+  $('screen-form').style.display='none';
+  $('screen-results').style.display='block';
+
+  document.querySelectorAll('.anim').forEach(el=>{
+    el.style.animation='none';
+    void el.offsetWidth;
+    el.style.animation='';
+  });
+
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showForm(){
+  $('screen-results').style.display='none';
+  $('screen-form').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function shareResults(){
+  const inp=getInputs();
+  const res=calcFIRE(inp);
+  const lbl=res.anios===Infinity?'∞ años':res.anios<1?`${Math.round(res.meses)} meses`:`${fmt(res.anios,1)} años`;
+  const text=`🔥 Mi número FIRE es ${fmtEur(res.objetivo)} y podría alcanzar la libertad financiera en ${lbl}.\n\nCalcula el tuyo con finanzers ↓`;
+  if(navigator.share){
+    navigator.share({title:'Mi plan FIRE · finanzers', text});
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(()=>alert('✅ Texto copiado al portapapeles'));
+  } else {
+    alert(text);
+  }
+}
+
+// ─────────────────────────────────────────
+//  INIT
+// ─────────────────────────────────────────
+initSliders();
+updatePreview();
+</script>
+</body>
+</html>
